@@ -1,0 +1,10 @@
+#Listen {{ http_port }}
+
+<IfModule ssl_module>
+        Listen {{ http_port }}
+</IfModule>
+
+<IfModule mod_gnutls.c>
+        Listen {{ http_port }}
+</IfModule>
+

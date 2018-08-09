@@ -1,0 +1,64 @@
+---
+- name: Copy {{ DB_replication }}.sql to host
+  copy:
+    src: "/tmp/{{ hostname_master }}/tmp/{{ DB_replication }}.sql"
+    dest: /tmp
+  tags:
+    - copy
+
+- name: Import file.sql similar to mysql -u <username> -p <password> < hostname.sql
+  mysql_db:
+    state: import
+    login_user: root
+    login_password: "{{ mysql_root }}"
+    name: "{{ DB_replication }}" 
+    target: "/tmp/{{ DB_replication }}.sql"
+  tags:
+    -  import
+
+- name: Copy my.cnf
+  template: src=my_cnf.j2 dest=/etc/mysql/my.cnf
+  notify: restart mysql
+
+- name: force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+#- name: Restart mysql
+#  service:
+#    name: mysql
+#    state: restarted
+
+- name: Stop SLAVE
+  mysql_replication:
+    mode: stopslave
+    login_user: slave
+    login_password: "{{ mysql_slave }}"
+
+- name: Reset SLAVE
+  mysql_replication:
+    mode: resetslave
+    login_user: slave
+    login_password: "{{ mysql_slave }}"
+
+- name: Change MASTER
+  mysql_replication:
+    mode: changemaster
+    master_host: "{{ master_ip }}"
+    master_log_file: "{{ hostvars[hostname_master]['master']['File'] }}"
+    master_log_pos: "{{ hostvars[hostname_master]['master']['Position'] }}"
+    master_user: slave
+    master_password: "{{ mysql_slave }}"
+    login_user: slave
+    login_password: "{{ mysql_slave }}"
+
+- name: Start SLAVE
+  mysql_replication:
+    mode: startslave
+    login_user: slave
+    login_password: "{{ mysql_slave }}"
+
+- name: Get SLAVE
+  mysql_replication:
+    mode: getslave
+    login_user: slave
+    login_password: "{{ mysql_slave }}"
