@@ -1,6 +1,0 @@
----
-cert_name: ansible.com.crt
-key_name: ansible.com.pem
-path_to_cert: /home/vagrant/ssl
-path_to_key: /home/vagrant/ssl
-user: vagrant 
