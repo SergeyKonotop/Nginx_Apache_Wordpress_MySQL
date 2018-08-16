@@ -1,0 +1,15 @@
+---
+- name: playbook
+  hosts: all
+  become: yes
+  tasks:
+  - name: Add the user 'ansible'
+    user:
+      name: ansible
+      system: yes
+ 
+  - name: Set authorized key taken from file
+    authorized_key:
+      user: ansible
+      state: present
+      key: "{{ lookup('file', '/tmp/ansible.pub') }}"

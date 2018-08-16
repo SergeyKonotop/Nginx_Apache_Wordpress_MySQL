@@ -1,0 +1,96 @@
+---
+- name: install db master
+  hosts: db1-stag
+  become: yes
+  vars_files:
+    - stag_var.yml
+  roles:
+       - db
+       - master_db
+  tags:
+    - master
+    - STAG
+
+- name: install db slave
+  hosts: db2-stag
+  become: yes
+  vars_files:
+    - stag_var.yml
+  roles:
+       - db
+       - slave_db
+  tags:
+    - slave
+    - STAG
+
+- name: install apache server
+  hosts: be-s
+  become: yes
+  vars_files:
+    - stag_var.yml
+  roles:
+       - certificate
+       - apache
+  tags:
+    - apache
+    - STAG
+
+- name: install nginx server
+  hosts: fe-s
+  become: yes
+  vars_files:
+    - stag_var.yml
+  roles:
+       - certificate
+       - nginx 
+  tags:
+    - nginx
+    - STAG
+
+- name: install db master PROD
+  hosts: db1-prod
+  become: yes
+  vars_files:
+    - prod_var.yml
+  roles:
+       - db
+       - master_db
+  tags:
+    - master_prod
+    - PROD
+
+- name: install db slave PROD
+  hosts: db2-prod
+  become: yes
+  vars_files:
+    - prod_var.yml
+  roles:
+       - db
+       - slave_db
+  tags:
+    - slave_prod
+    - PROD
+
+- name: install apache server PROD
+  hosts: be-p
+  become: yes
+  vars_files:
+    - prod_var.yml
+  roles:
+       - certificate
+       - apache
+  tags:
+    - apache_prod
+    - PROD
+
+- name: install nginx server PROD
+  hosts: fe-p
+  become: yes
+  vars_files:
+    - prod_var.yml
+  roles:
+       - certificate
+       - nginx
+  tags:
+    - nginx_prod
+    - PROD
